@@ -8,13 +8,6 @@ abstract class AuthDatasource {
   Future<Result<LoginFailedResult, User>> login({required String email, required String password});
 }
 
-class FakeAuthDataSource implements AuthDatasource {
-  @override
-  Future<Result<LoginFailedResult, User>> login({required String email, required String password}) async {
-    return const Failure(LoginFailedResult.unknowError);
-  }
-}
-
 class RemoteAuthDatasource implements AuthDatasource {
   RemoteAuthDatasource(this._dio);
 
