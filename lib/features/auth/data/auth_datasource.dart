@@ -1,24 +1,26 @@
 import 'package:app_agendamento/core/helpers/result.dart';
 import 'package:app_agendamento/features/auth/data/results/login_failed_result.dart';
 import 'package:dio/dio.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import '../models/user.dart';
 
-class AuthDatasource {
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://parseapi.back4app.com/functions',
-      headers: {
-        'X-Parse-Application-Id': 'b5Oz15zjWOMA0nvO8XdOv7GEsvLuVtMr6tArjKVZ',
-        'X-Parse-REST-API-Key': 'a0rNcINrx8UYQbXnaS5qRTPQy2XNkQAuvG5DXPWd'
-        // 'X-Parse-Session-Token': 'r:5ad07c1046a8ba3fd8f309c9a513a13a'
-      },
-    ),
-  )..interceptors.addAll([
-      PrettyDioLogger(requestHeader: true, requestBody: true),
-    ]);
+abstract class AuthDatasource {
+  Future<Result<LoginFailedResult, User>> login({required String email, required String password});
+}
 
+class FakeAuthDataSource implements AuthDatasource {
+  @override
+  Future<Result<LoginFailedResult, User>> login({required String email, required String password}) async {
+    return const Failure(LoginFailedResult.unknowError);
+  }
+}
+
+class RemoteAuthDatasource implements AuthDatasource {
+  RemoteAuthDatasource(this._dio);
+
+  final Dio _dio;
+
+  @override
   Future<Result<LoginFailedResult, User>> login({required String email, required String password}) async {
     try {
       final response = await _dio.post(
